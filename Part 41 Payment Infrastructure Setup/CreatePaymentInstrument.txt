@@ -1,0 +1,6 @@
+aws bedrock-agentcore create-payment-instrument \
+  --payment-manager-arn "<< YOUR PAYMENT MANAGER ARN >>" \
+  --payment-connector-id "<< YOUR PAYMENT CONNECTOR ID >>" \
+  --user-id "lab-session-agent-01" \
+  --payment-instrument-type "EMBEDDED_CRYPTO_WALLET" \
+  --payment-instrument-details '{"embeddedCryptoWallet": {"network": "ETHEREUM", "linkedAccounts": [{"email": {"emailAddress": "lab-agent@example.com"}}]}}'

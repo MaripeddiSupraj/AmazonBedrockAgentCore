@@ -1,0 +1,7 @@
+aws bedrock-agentcore get-payment-instrument-balance \
+  --payment-manager-arn "<< YOUR PAYMENT MANAGER ARN >>" \
+  --payment-instrument-id "<< YOUR PAYMENT INSTRUMENT ID >>" \
+  --payment-connector-id "<< YOUR CONNECTOR ID >>" \
+  --user-id "lab-session-agent-01" \
+  --chain "BASE_SEPOLIA" \
+  --token "USDC"
