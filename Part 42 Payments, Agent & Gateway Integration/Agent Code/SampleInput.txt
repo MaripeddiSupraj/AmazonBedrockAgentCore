@@ -1,0 +1,31 @@
+{
+  "input": {
+    "text": "Fetch the premium mock data stream from the CDPBazaar target, and send a short summary of it to the #social channel on Slack"
+  }
+}
+
+{
+  "input": {
+    "text": "Query the CDPBazaar MCP server to check for a mock weather or data endpoint. If access requires a fee, authorize the payment using our active session, pull the payload, and send it to #social."
+  }
+}
+
+{
+  "input": {
+    "text": "Get the coordinates for Mumbai, search the CDPBazaar target for any data related to those coordinates, execute a single paid request to unlock the dataset, and post the final summary to #social"
+  }
+}
+
+{
+  "sessionId": "aws-console-lab-thread-01",
+  "input": {
+    "text": "Call our CDPBazaar target to discover a mock service, execute a request to pull the paid stream, and summarize the data payload."
+  }
+}
+
+
+Find the analytics mock data stream inside the CDPBazaar tools, purchase a single data request, and post a concise summary of the results straight into our team Slack channel.
+
+Search our CDPBazaar MCP target server to see what mock data endpoints are currently active. If you find a mock data or weather feed, purchase access to it and display the contents.
+
+Check what endpoints are exposed by the CDPBazaar MCP target. Before you execute the transaction, tell me what the cost is per call, then proceed to fetch the stream
