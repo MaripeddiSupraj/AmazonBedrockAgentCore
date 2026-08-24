@@ -15,7 +15,7 @@ aws agent-registry-control list-registries
 # Note: --descriptors passes the metadata document or references a file mapping
 
 aws agent-registry-control create-registry-record \
-  --registry-id "Ly2Z0MnGM0BLLRft" \
+  --registry-id "<< your-registry-id >>" \
   --name "myMCPServer" \
   --display-name "Mock MCP Server" \
   --record-type "MCP" \
