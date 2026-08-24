@@ -1,0 +1,92 @@
+########### CREATE AWS AGENT REGISTRY ###########
+# Creates the underlying registry environment
+
+aws agent-registry-control create-registry \
+  --name "myFirstRegistry" \
+  --description "My first registry"
+
+
+########### VERIFY THAT AWS AGENT REGISTRY EXISTS ###########
+
+aws agent-registry-control list-registries
+
+
+########### PUBLISH REGISTRY RECORD FOR YOUR MOCK MCP SERVER ###########
+# Note: --descriptors passes the metadata document or references a file mapping
+
+aws agent-registry-control create-registry-record \
+  --registry-id "Ly2Z0MnGM0BLLRft" \
+  --name "myMCPServer" \
+  --display-name "Mock MCP Server" \
+  --record-type "MCP" \
+  --record-version "1.0" \
+  --description "A mock MCP server used for hands-on learning" \
+  --descriptors file://RegLab/myMCPserver.json
+
+
+########### VERIFY THAT AWS REGISTRY RECORD EXISTS ###########
+
+aws agent-registry-control list-registry-records \
+  --registry-id "<< your-registry-id >>"
+
+
+########### SUBMIT REGISTRY RECORD FOR APPROVAL ###########
+# Pushes the record from DRAFT to PENDING_APPROVAL status
+
+aws agent-registry-control submit-registry-record-for-approval \
+  --registry-id "<< your-registry-id >>" \
+  --record-id "<< your-record-id >>"
+
+
+########### VERIFY REGISTRY RECORD STATUS ###########
+
+aws agent-registry-control list-registry-records \
+  --registry-id "<< your-registry-id >>"
+
+
+########### VIEW RECORD DETAILS ###########
+
+aws agent-registry-control get-registry-record \
+  --registry-id "<< your-registry-id >>" \
+  --record-id "<< your-record-id >>"
+
+
+########### APPROVE REGISTRY RECORD ###########
+
+aws agent-registry-control update-registry-record-status \
+  --registry-id "<< your-registry-id >>" \
+  --record-id "<< your-record-id >>" \
+  --status "APPROVED" \
+  --status-reason "Approving mock MCP server for production use"
+
+########### VERIFY APPROVED STATUS IN CONTROL PLANE ###########
+
+aws agent-registry-control list-registry-records \
+  --registry-id "<< your-registry-id >>"
+
+
+########### BROWSE APPROVED / DISCOVERABLE RECORDS ###########
+
+aws agent-registry list-discoverable-registry-records \
+  --registry-id "<< your-registry-id >>"
+
+
+########### DISCOVER AND SEARCH THE APPROVED RECORD (NATURAL LANGUAGE) ###########
+# Uses the data plane endpoint to search using a search-term string block
+
+aws agent-registry search-discoverable-registry-records \  
+--registry-id << your-registry-id >> \
+ --search-query “myMCP"
+
+
+########### DISCOVER AND SEARCH THE APPROVED RECORD BY TYPE ###########
+
+aws agent-registry search-discoverable-registry-records \
+  --registry-id "<< your-registry-id >>" \
+  --search-query "MCP"
+
+########### DISCOVER AND SEARCH THE APPROVED RECORD BY NAME ###########
+
+aws agent-registry search-discoverable-registry-records \
+  --registry-id "<< your-registry-id >>" \
+  --search-query "myMCPServer"
