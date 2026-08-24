@@ -74,9 +74,9 @@ aws agent-registry list-discoverable-registry-records \
 ########### DISCOVER AND SEARCH THE APPROVED RECORD (NATURAL LANGUAGE) ###########
 # Uses the data plane endpoint to search using a search-term string block
 
-aws agent-registry search-discoverable-registry-records \  
---registry-id << your-registry-id >> \
- --search-query “myMCP"
+aws agent-registry search-discoverable-registry-records \
+  --registry-id "<< your-registry-id >>" \
+  --search-query "myMCP"
 
 
 ########### DISCOVER AND SEARCH THE APPROVED RECORD BY TYPE ###########
