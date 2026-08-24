@@ -1,6 +1,0 @@
-{
-  "mcpServer": {
-    "data": "{\"name\": \"my/mcp-server\", \"description\": \"A mock MCP server used for hands-on learning\", \"version\": \"1.0.0\"}",
-    "dataSchemaVersion": "2025-12-11"
-  }
-}
