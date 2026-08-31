@@ -1,0 +1,11 @@
+{
+  "name": "io.example/weather",
+  "description": "Weather data MCP server",
+  "version": "1.0.0",
+  "tools": [
+    {
+      "name": "get_weather",
+      "description": "Get weather for a location"
+    }
+  ]
+}
