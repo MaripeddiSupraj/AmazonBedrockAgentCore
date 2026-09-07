@@ -1,0 +1,30 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "AgentRegistryControlPlane",
+			"Effect": "Allow",
+			"Action": [
+				"agent-registry:ListRegistries"
+			],
+			"Resource": "*"
+		},
+		{
+			"Sid": "AgentRegistryDataPlaneSearchAndInvoke",
+			"Effect": "Allow",
+			"Action": [
+				"agent-registry:SearchDiscoverableRegistryRecords",
+				"agent-registry:InvokeRegistryMcp"
+			],
+			"Resource": "arn:aws:agent-registry:us-east-1:<<ACCOUNT ID>>:*"
+		},
+		{
+			"Sid": "BedrockAgentCoreRuntimeInvocation",
+			"Effect": "Allow",
+			"Action": [
+				"bedrock-agentcore:InvokeAgentRuntime"
+			],
+			"Resource": "arn:aws:bedrock-agentcore:us-east-1:<<ACCOUNT ID>>:runtime/*"
+		}
+	]
+}

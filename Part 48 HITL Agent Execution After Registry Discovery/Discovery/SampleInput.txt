@@ -1,0 +1,3 @@
+"{/"input/": {/"text/": /"Get weather for Mumbai and then Send I love you message to #social/"}}"
+
+"{/"input/": {/"text/": /"Get coordinates for Paris"}}"

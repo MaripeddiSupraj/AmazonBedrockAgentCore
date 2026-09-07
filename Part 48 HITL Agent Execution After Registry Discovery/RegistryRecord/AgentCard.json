@@ -1,0 +1,35 @@
+{
+  "name": "<<AGENT NAME>>",
+  "description": "<<AGENT DESCRIPTION>>",
+  "version": "1.0.0",
+  "protocolVersion": "0.2.2",
+  "url": "<<AGENT CORE AGENT arn>>",
+  "defaultInputModes": [
+    "text"
+  ],
+  "defaultOutputModes": [
+    "text"
+  ],
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "skills": [
+    {
+      "id": "<< ID >> -management",
+      "name": "<< NAME >>",
+      "description": "<< DESCRIPTION >>",
+      "inputModes": [
+        "text"
+      ],
+      "outputModes": [
+        "text"
+      ],
+      "tags": [
+        "<<TAG 1>>",
+        "<<TAG 2>>"
+      ]
+    }
+  ]
+}
