@@ -40,7 +40,8 @@ The README must contain, in this order:
 12. Learner assignment
 13. Explain-back test
 14. Production gap
-15. Next day
+15. Cleanup / cost hygiene
+16. Next day
 
 ## Teaching constraints
 
@@ -64,6 +65,7 @@ The README must contain, in this order:
 - Include a learner modification task.
 - Include explain-back questions.
 - State what is demo-grade versus production-grade.
+- Include explicit cleanup/cost guidance for every AWS resource the lesson creates.
 
 ## Code constraints
 
