@@ -6,14 +6,37 @@ from bedrock_agentcore.memory import MemoryClient
 app = BedrockAgentCoreApp()
 
 REGION = os.getenv("AWS_REGION", "us-west-2")
-MEMORY_ID = os.getenv("MEMORY_ID", "")
-
 memory = MemoryClient(region_name=REGION)
 
 
-def read_history(actor_id: str, memory_session_id: str) -> list[dict]:
+def resolve_memory_id() -> tuple[str, str]:
+    """
+    Prefer an explicit MEMORY_ID for manual/local experiments.
+
+    When the current AgentCore CLI creates a managed Memory connection for an
+    agent, it injects an environment variable named MEMORY_<RESOURCE_NAME>_ID.
+    Discover that generated variable so this teaching example does not depend
+    on a hardcoded resource name.
+    """
+    explicit = os.getenv("MEMORY_ID")
+    if explicit:
+        return explicit, "MEMORY_ID"
+
+    generated = [
+        (name, value)
+        for name, value in os.environ.items()
+        if name.startswith("MEMORY_") and name.endswith("_ID") and value
+    ]
+
+    if len(generated) == 1:
+        return generated[0][1], generated[0][0]
+
+    return "", ""
+
+
+def read_history(memory_id: str, actor_id: str, memory_session_id: str) -> list[dict]:
     events = memory.list_events(
-        memory_id=MEMORY_ID,
+        memory_id=memory_id,
         actor_id=actor_id,
         session_id=memory_session_id,
         include_payload=True,
@@ -42,10 +65,15 @@ def read_history(actor_id: str, memory_session_id: str) -> list[dict]:
 @app.entrypoint
 def handler(request):
     """Day 5: persist short-term events outside the Runtime microVM."""
-    if not MEMORY_ID:
+    memory_id, memory_env_var = resolve_memory_id()
+
+    if not memory_id:
         return {
             "ok": False,
-            "message": "MEMORY_ID is not configured.",
+            "message": (
+                "No Memory ID found. Use the CLI-managed short-term Memory "
+                "connection or configure MEMORY_ID explicitly."
+            ),
         }
 
     prompt = request.get("prompt")
@@ -58,16 +86,16 @@ def handler(request):
     prompt = prompt.strip()
 
     if prompt == "/history":
-        history = read_history(actor_id, memory_session_id)
         return {
             "ok": True,
             "actor_id": actor_id,
             "memory_session_id": memory_session_id,
-            "history": history,
+            "memory_env_var": memory_env_var,
+            "history": read_history(memory_id, actor_id, memory_session_id),
         }
 
     event = memory.create_event(
-        memory_id=MEMORY_ID,
+        memory_id=memory_id,
         actor_id=actor_id,
         session_id=memory_session_id,
         messages=[(prompt, "USER")],
@@ -80,6 +108,7 @@ def handler(request):
         "event_id": event.get("eventId"),
         "actor_id": actor_id,
         "memory_session_id": memory_session_id,
+        "memory_env_var": memory_env_var,
         "state_type": "agentcore-short-term-memory",
     }
 
