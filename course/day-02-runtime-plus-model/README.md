@@ -215,6 +215,14 @@ Is it still an AgentCore Runtime application?
 
 **Expected:** yes. Day 1 already proved that.
 
+### Prediction D
+
+Set `MODEL_ID` only in your terminal, but do not add it to the deployed Runtime configuration.
+
+What should the cloud agent see?
+
+**Expected:** the deployed process should not rely on your laptop's shell environment. Runtime configuration must be supplied to the deployment.
+
 ---
 
 ## Run it
@@ -234,12 +242,46 @@ app/Day02Model/main.py
 
 with this day’s [main.py](main.py).
 
-Set a Bedrock model/inference profile available in your account and Region:
+Choose a Bedrock model or inference profile that is available in your account and Region.
 
-```bash
-export MODEL_ID="<YOUR_SUPPORTED_MODEL_ID_OR_INFERENCE_PROFILE>"
-export AWS_REGION="<YOUR_REGION>"
+### Local development configuration
+
+Put the model ID in:
+
+```text
+agentcore/.env.local
 ```
+
+For example:
+
+```text
+MODEL_ID=<YOUR_SUPPORTED_MODEL_ID_OR_INFERENCE_PROFILE>
+```
+
+The current CLI loads local development variables from the project environment configuration.
+
+### Deployed Runtime configuration
+
+An exported shell variable on your laptop does **not** automatically become a deployed Runtime variable.
+
+Open:
+
+```text
+agentcore/agentcore.json
+```
+
+and add `MODEL_ID` to the Day02Model runtime's `envVars`:
+
+```json
+"envVars": [
+  {
+    "name": "MODEL_ID",
+    "value": "<YOUR_SUPPORTED_MODEL_ID_OR_INFERENCE_PROFILE>"
+  }
+]
+```
+
+This is intentionally visible in the lesson: **local process configuration and deployed Runtime configuration are different things.**
 
 For the local development server:
 
