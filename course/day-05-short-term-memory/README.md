@@ -292,59 +292,88 @@ That actor has a separate Memory scope.
 
 ## Run it
 
-### 1. Create a Memory resource
+### 1. Let the current CLI create the short-term Memory connection
 
-From this folder:
+Create this day as an **agent project with short-term Memory enabled**:
 
 ```bash
-export AWS_REGION="<YOUR_REGION>"
-pip install bedrock-agentcore boto3
-python setup_memory.py
+agentcore create \
+  --name Day05 \
+  --framework Strands \
+  --model-provider Bedrock \
+  --memory shortTerm \
+  --build CodeZip \
+  --protocol HTTP
+
+cd Day05
 ```
 
-The script prints:
+Why use `--memory shortTerm` today?
+
+Because the current CLI can model the relationship explicitly:
 
 ```text
-MEMORY_ID=...
+Runtime
+  |
+  +--> managed Memory connection
+         |
+         +--> short-term Memory resource
 ```
 
-Export it:
+The generated project creates a Memory resource with **no long-term strategies** and wires that resource to the Runtime.
 
-```bash
-export MEMORY_ID="<THE_PRINTED_MEMORY_ID>"
+For a project named `Day05`, the generated Memory is typically named:
+
+```text
+Day05Memory
 ```
 
-You can also create/manage Memory through the current AgentCore CLI using `agentcore add memory`. This setup script is intentionally explicit so the learner sees the Memory resource separately from Runtime.
+and the runtime wiring uses an environment variable shaped like:
 
-### 2. Create the Runtime project
-
-```bash
-agentcore create --name Day05Memory --framework Strands --model-provider Bedrock --memory none --build CodeZip --protocol HTTP
-cd Day05Memory
+```text
+MEMORY_DAY05MEMORY_ID
 ```
+
+The teaching code does not hardcode that exact name. It discovers the single `MEMORY_*_ID` variable injected by the CLI.
+
+### 2. Replace the generated entrypoint
 
 Replace:
 
 ```text
-app/Day05Memory/main.py
+app/Day05/main.py
 ```
 
 with this day’s [main.py](main.py).
 
-Make sure the Runtime execution role can perform the Memory operations used in this lesson, including:
+The generated project already knows that this Runtime is connected to its Memory resource. That is better than manually creating a Memory and then forgetting to wire IAM or runtime configuration.
 
-```text
-bedrock-agentcore:CreateEvent
-bedrock-agentcore:ListEvents
-```
-
-against the intended Memory resource.
-
-Deploy:
+### 3. Deploy the connected Runtime + Memory
 
 ```bash
 agentcore deploy
 ```
+
+After deployment, inspect:
+
+```bash
+agentcore status
+```
+
+You should be able to identify both the Runtime and the Memory resource created for this project.
+
+### Manual alternative — only if you want to see raw Memory creation
+
+[setup_memory.py](setup_memory.py) is kept as an optional low-level exercise.
+
+It creates a short-term Memory resource directly with the Python SDK:
+
+```bash
+pip install bedrock-agentcore boto3
+python setup_memory.py
+```
+
+If you use that manual path, you must also wire its ID and required IAM permissions into the Runtime yourself. For the main Day 5 lesson, prefer the CLI-managed `--memory shortTerm` path so setup details do not hide the Memory concept.
 
 ---
 
@@ -398,28 +427,39 @@ This is the most important proof in the first five days.
 
 ## Break it on purpose
 
-Temporarily set an incorrect:
+Add an explicit bad override to the Runtime's `envVars` in:
 
 ```text
-MEMORY_ID
+agentcore/agentcore.json
 ```
 
-and invoke the agent.
+For example:
+
+```json
+{
+  "name": "MEMORY_ID",
+  "value": "does-not-exist"
+}
+```
+
+Redeploy and invoke the agent.
+
+The sample deliberately prefers explicit `MEMORY_ID` over the generated `MEMORY_*_ID`, so this forces the Memory call to use the invalid resource.
 
 ### What should you learn?
 
-The Runtime can be healthy while the separate Memory service call fails.
+The Runtime can be healthy while the **separate Memory service call** fails.
 
-This gives you another debugging boundary:
+That gives you a precise debugging boundary:
 
 ```text
 Runtime healthy?
-Memory resource correct?
+Memory connection/resource correct?
 IAM allowed?
 actor/session correct?
 ```
 
-Restore the correct Memory ID afterward.
+Remove the bad override and redeploy afterward.
 
 ---
 
