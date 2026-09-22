@@ -114,7 +114,9 @@ response
 
 ---
 
-## The four IDs/labels you must not mix up
+## Important terms
+
+### The four IDs/labels you must not mix up
 
 ### 1. Runtime session ID
 
@@ -547,6 +549,33 @@ AgentCore Memory      = separate durable agent-memory service
 ```
 
 If that distinction is clear, the foundation is strong enough to move into long-term Memory, Gateway, Identity, tools, policy, observability, and evaluations.
+
+---
+
+## Next day
+
+The natural Day 6 concept is **long-term Memory strategies**.
+
+Day 5 stored raw short-term events. Day 6 should answer:
+
+> How does AgentCore turn conversation events into useful information that can be retrieved beyond one short-term session?
+
+The next lesson should introduce only the long-term-memory pipeline:
+
+```text
+short-term events
+      |
+      v
+memory strategy / extraction
+      |
+      v
+long-term memory records
+      |
+      v
+retrieval
+```
+
+Do not add Gateway or Identity in that same lesson.
 
 ---
 
