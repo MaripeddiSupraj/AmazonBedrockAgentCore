@@ -222,7 +222,7 @@ Is it still an AgentCore Runtime application?
 Create a project:
 
 ```bash
-agentcore create --name Day02Model --defaults
+agentcore create --name Day02Model --framework Strands --model-provider Bedrock --memory none --build CodeZip --protocol HTTP
 cd Day02Model
 ```
 
