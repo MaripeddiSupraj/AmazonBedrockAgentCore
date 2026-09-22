@@ -137,7 +137,25 @@ Copying the provided sample is not an assignment.
 
 State clearly what the educational example does **not** solve.
 
-### 15. Next day
+### 15. Cleanup / cost hygiene
+
+Every AWS-backed lesson must say:
+
+- which resources were created,
+- whether the next day reuses them,
+- when to keep them,
+- how to remove them safely.
+
+For current CLI-managed course projects, prefer the explicit teardown flow:
+
+```bash
+agentcore remove all
+agentcore deploy
+```
+
+Do not teach cloud labs that silently leave resources behind.
+
+### 16. Next day
 
 Explain why the next concept is needed.
 
@@ -366,6 +384,7 @@ When asked to create Day 6 onward:
 7. keep the core code minimal,
 8. include a break-it experiment,
 9. include an assignment and explain-back test,
-10. link the day back into `course/README.md`.
+10. include cleanup/cost guidance,
+11. link the day back into `course/README.md`.
 
 Do not copy an older `part-*` README verbatim. Use old labs only as implementation references.
