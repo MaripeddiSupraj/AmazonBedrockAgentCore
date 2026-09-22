@@ -350,7 +350,14 @@ with this day’s [main.py](main.py).
 
 The generated project already knows that this Runtime is connected to its Memory resource. That is better than manually creating a Memory and then forgetting to wire IAM or runtime configuration.
 
-### 3. Deploy the connected Runtime + Memory
+### 3. Validate and deploy the connected Runtime + Memory
+
+```bash
+agentcore validate
+agentcore deploy --dry-run
+```
+
+Review the planned Runtime + Memory resources, then deploy:
 
 ```bash
 agentcore deploy
@@ -549,6 +556,21 @@ AgentCore Memory      = separate durable agent-memory service
 ```
 
 If that distinction is clear, the foundation is strong enough to move into long-term Memory, Gateway, Identity, tools, policy, observability, and evaluations.
+
+---
+
+## Cleanup / cost hygiene
+
+Day 5 creates both a Runtime and an AgentCore Memory resource through the project configuration.
+
+When you have captured the required evidence:
+
+```bash
+agentcore remove all
+agentcore deploy
+```
+
+If you also ran the optional `setup_memory.py` manual path, that Memory resource is **outside this CLI-managed project**. Delete that separately through the AWS console or the Memory API/SDK when finished.
 
 ---
 
