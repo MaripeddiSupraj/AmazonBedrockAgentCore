@@ -196,7 +196,7 @@ agentcore --help
 ### 2. Create a current project scaffold
 
 ```bash
-agentcore create --name Day01Runtime --defaults
+agentcore create --name Day01Runtime --framework Strands --model-provider Bedrock --memory none --build CodeZip --protocol HTTP
 cd Day01Runtime
 ```
 
