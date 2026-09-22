@@ -319,7 +319,7 @@ You can also create/manage Memory through the current AgentCore CLI using `agent
 ### 2. Create the Runtime project
 
 ```bash
-agentcore create --name Day05Memory --defaults
+agentcore create --name Day05Memory --framework Strands --model-provider Bedrock --memory none --build CodeZip --protocol HTTP
 cd Day05Memory
 ```
 
