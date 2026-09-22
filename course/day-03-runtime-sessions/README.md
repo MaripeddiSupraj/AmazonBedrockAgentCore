@@ -222,6 +222,13 @@ app/Day03Session/main.py
 
 with [main.py](main.py).
 
+Validate and preview the deployment:
+
+```bash
+agentcore validate
+agentcore deploy --dry-run
+```
+
 Then:
 
 ```bash
@@ -340,6 +347,19 @@ That means you should not use it for durable:
 - audit records.
 
 Runtime session storage options can preserve certain filesystem data across compute stop/resume, but structured agent memory is a separate problem.
+
+---
+
+## Cleanup / cost hygiene
+
+**Keep the Day 3 Runtime if you are continuing directly to Day 4.** Day 4 intentionally reuses it to teach programmatic invocation.
+
+If you are stopping here instead:
+
+```bash
+agentcore remove all
+agentcore deploy
+```
 
 ---
 
