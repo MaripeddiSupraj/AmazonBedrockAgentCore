@@ -1,5 +1,7 @@
 # Amazon Bedrock AgentCore — Learning Guide
 
+> **For a new learner, complete [course/ Days 1–5](course/README.md) first.** Those five days are the teaching-reference implementation. This guide then maps the broader 31-lab journey and assignments.
+
 This guide turns the repository from a collection of runnable labs into a structured learning path.
 
 The goal is not only to make the examples run. By the end, a learner should be able to explain:
