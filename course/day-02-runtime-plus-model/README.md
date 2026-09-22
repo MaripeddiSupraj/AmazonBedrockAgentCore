@@ -295,7 +295,14 @@ Then:
 agentcore dev "Explain containers in exactly three short bullets."
 ```
 
-Deploy:
+Validate the project and preview the infrastructure change:
+
+```bash
+agentcore validate
+agentcore deploy --dry-run
+```
+
+Then deploy:
 
 ```bash
 agentcore deploy
@@ -397,6 +404,23 @@ This example does not yet include:
 - application authentication.
 
 Do not add all of them now. Each belongs to a later concept.
+
+---
+
+## Cleanup / cost hygiene
+
+This lesson creates a deployed AgentCore Runtime and supporting AWS resources.
+
+If you are finished with this day's project:
+
+```bash
+agentcore remove all
+agentcore deploy
+```
+
+The first command removes the resources from the project configuration; the second applies that removal in AWS.
+
+Do not remove a project you intentionally plan to reuse in a later experiment.
 
 ---
 
