@@ -210,7 +210,7 @@ Should you trust the Python global to survive?
 Create and deploy the project as in earlier days:
 
 ```bash
-agentcore create --name Day03Session --defaults
+agentcore create --name Day03Session --framework Strands --model-provider Bedrock --memory none --build CodeZip --protocol HTTP
 cd Day03Session
 ```
 
