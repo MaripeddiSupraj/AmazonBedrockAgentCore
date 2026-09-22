@@ -84,7 +84,7 @@ agentcore --help
 Create a learning project:
 
 ```bash
-agentcore create --name Day01Runtime --defaults
+agentcore create --name Day01Runtime --framework Strands --model-provider Bedrock --memory none --build CodeZip --protocol HTTP
 ```
 
 The generated project places the agent entrypoint under:
