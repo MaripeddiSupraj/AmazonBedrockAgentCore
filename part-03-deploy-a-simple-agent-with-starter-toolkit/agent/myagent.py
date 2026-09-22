@@ -1,21 +1,28 @@
 # myagent.py
 import json
 import logging
+
 from bedrock_agentcore import BedrockAgentCoreApp
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize AgentCore app
+# AgentCore wraps this Python application and exposes the decorated entrypoint.
 app = BedrockAgentCoreApp()
+
 
 @app.entrypoint
 def invoke(payload):
     """
-    payload is a dict (agentcore CLI sends {"prompt": "..."}).
-    Return a JSON-serializable dict with key "message".
+    Minimal Runtime-only example.
+
+    There is deliberately:
+    - no LLM call,
+    - no AgentCore Memory,
+    - no Gateway/tool call.
+
+    The goal is to prove the Runtime request/response path first.
     """
-    # Defensive payload parsing
     if isinstance(payload, (bytes, str)):
         try:
             payload = json.loads(payload)
@@ -28,16 +35,19 @@ def invoke(payload):
     if not prompt:
         return {"message": "No prompt provided."}
 
-    # Simple response logic
-    if "joke" in prompt.lower():
+    normalized = prompt.strip().lower()
+
+    if normalized == "health":
+        reply = "Agent application is running."
+    elif "joke" in normalized:
         reply = "Why did the developer go broke? Because he used up all his cache."
-    elif "name" in prompt.lower():
-        reply = "I remember you said your name is Namrata."
     else:
+        # Echo behavior makes it obvious that no model reasoning is happening.
         reply = f"You said: {prompt}"
 
     logger.info("Replying: %s", reply)
     return {"message": reply}
+
 
 if __name__ == "__main__":
     app.run()

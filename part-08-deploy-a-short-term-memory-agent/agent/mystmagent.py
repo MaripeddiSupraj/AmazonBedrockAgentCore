@@ -1,63 +1,107 @@
-import os
 import json
 import logging
+import os
+
 import boto3
-from colorama import init, Fore, Style
 from bedrock_agentcore import BedrockAgentCoreApp
 from bedrock_agentcore.memory import MemoryClient
 
-# Initialize colorama
-init(autoreset=True)
-
-# Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize Bedrock AgentCore app and clients
+REGION = os.getenv("AWS_REGION", "us-east-1")
+MEMORY_ID = os.getenv("MEMORY_ID", "")
+MODEL_ID = os.getenv("MODEL_ID", "")
+
 app = BedrockAgentCoreApp()
-bedrock = boto3.client("bedrock-runtime", region_name="us-east-1")
-memory_client = MemoryClient(region_name="us-east-1")
+bedrock = boto3.client("bedrock-runtime", region_name=REGION)
+memory_client = MemoryClient(region_name=REGION)
 
-# Configuration constants
-MODEL_ID = "anthropic.claude-3-sonnet-20240229-v1:0"
-MEMORY_ID = "mystmmemory-otBM7C6wjc" #REPLACE WITH YOUR MEMORY ID
-SESSION_ID = "default_session"
 
-def add_event(actor_id, content):
-    role = actor_id.upper()
-    text = str(content)
-    messages = [(text, role)]
+def store_message(actor_id: str, session_id: str, text: str, role: str):
+    """
+    Store one conversational message.
 
-    try:
-        response = memory_client.create_event(
+    Important mental model:
+      actor_id  = the entity/user the memory belongs to
+      session_id = the logical conversation/session
+      role      = USER or ASSISTANT inside that conversation
+
+    Do not use USER/ASSISTANT as actor IDs.
+    """
+    event = memory_client.create_event(
+        memory_id=MEMORY_ID,
+        actor_id=actor_id,
+        session_id=session_id,
+        messages=[(text, role)],
+    )
+    logger.info(
+        "Stored %s event for actor=%s session=%s event=%s",
+        role,
+        actor_id,
+        session_id,
+        event.get("eventId", "unknown"),
+    )
+    return event
+
+
+def load_conversation(actor_id: str, session_id: str):
+    """Read the conversation history for one actor + session."""
+    events = memory_client.list_events(
+        memory_id=MEMORY_ID,
+        actor_id=actor_id,
+        session_id=session_id,
+        include_payload=True,
+        max_results=50,
+    )
+
+    messages = []
+    for event in events:
+        for payload_item in event.get("payload", []):
+            conversational = payload_item.get("conversational")
+            if not conversational:
+                continue
+
+            role = conversational.get("role", "").lower()
+            text = conversational.get("content", {}).get("text", "")
+
+            if role in {"user", "assistant"} and text:
+                messages.append({"role": role, "content": text})
+
+    return messages
+
+
+def reset_memory(actor_id: str, session_id: str):
+    """Delete the events belonging only to this actor + session."""
+    events = memory_client.list_events(
+        memory_id=MEMORY_ID,
+        actor_id=actor_id,
+        session_id=session_id,
+        include_payload=False,
+        max_results=100,
+    )
+
+    for event in events:
+        memory_client.delete_event(
             memory_id=MEMORY_ID,
-            actor_id=role,
-            session_id=SESSION_ID,
-            messages=messages
+            actor_id=actor_id,
+            session_id=session_id,
+            event_id=event["eventId"],
         )
-        logger.info(Fore.MAGENTA + f"Created event: {response.get('eventId', 'unknown')}")
-        return response
-    except Exception as e:
-        logger.error(Fore.RED + f"Failed to create event: {e}", exc_info=True)
-        return {}
 
-def reset_memory():
-    for actor in ["USER", "ASSISTANT"]:
-        events = memory_client.list_events(
-            memory_id=MEMORY_ID,
-            actor_id=actor,
-            session_id=SESSION_ID,
-            include_payload=False,
-            max_results=100
-        )
-        for e in events:
-            memory_client.delete_event(
-                memoryId=MEMORY_ID,
-                sessionId=SESSION_ID,
-                eventId=e["eventId"],
-                actorId=actor
-            )
-    logger.info(Fore.CYAN + "Memory reset complete.")
+    logger.info("Memory reset for actor=%s session=%s", actor_id, session_id)
+
+
+def extract_assistant_text(result: dict) -> str:
+    """Extract text blocks from an Anthropic Messages API response."""
+    blocks = result.get("content", [])
+    text_parts = [
+        block.get("text", "")
+        for block in blocks
+        if isinstance(block, dict) and block.get("type") == "text"
+    ]
+    return "\n".join(part for part in text_parts if part).strip()
+
 
 @app.entrypoint
 def invoke(payload):
@@ -67,83 +111,87 @@ def invoke(payload):
         except Exception:
             payload = {}
 
+    if not MEMORY_ID:
+        return {
+            "message": (
+                "MEMORY_ID is not configured. Set it to your AgentCore Memory resource ID."
+            )
+        }
+
+    if not MODEL_ID:
+        return {
+            "message": (
+                "MODEL_ID is not configured. Set it to a Bedrock Claude model ID "
+                "available in your account/region."
+            )
+        }
+
     user_input = payload.get("prompt") or payload.get("input") or ""
+    actor_id = payload.get("actor_id") or "demo-user"
+    memory_session_id = payload.get("memory_session_id") or "demo-session"
+
     if not user_input:
         return {"message": "No prompt provided."}
 
     if user_input.strip().lower() == "reset":
-        reset_memory()
-        return {"message": "Memory reset. Let's start fresh!"}
+        reset_memory(actor_id, memory_session_id)
+        return {
+            "message": (
+                f"Memory reset for actor={actor_id}, session={memory_session_id}."
+            )
+        }
 
-    add_event("USER", user_input)
+    # 1. Persist the current user turn.
+    store_message(actor_id, memory_session_id, user_input, "USER")
 
-    events = memory_client.list_events(
-        memory_id=MEMORY_ID,
-        actor_id="USER",
-        session_id=SESSION_ID,
-        include_payload=True,
-        max_results=50
-    )
-
-    merged_messages = []
-    last_user_message = None
-    last_role = None
-    buffer = []
-
-    for e in events:
-        for m in e.get("payload", []):
-            msg = m.get("conversational", {})
-            role = msg.get("role", "UNKNOWN").lower()
-            content = msg.get("content", {}).get("text", "")
-            if role not in {"user", "assistant"}:
-                continue
-            if role == "user":
-                last_user_message = content
-            if role != last_role and buffer:
-                merged_messages.append({
-                    "role": last_role,
-                    "content": "\n".join(buffer)
-                })
-                buffer = []
-            buffer.append(content)
-            last_role = role
-
-    if buffer and last_role:
-        merged_messages.append({
-            "role": last_role,
-            "content": "\n".join(buffer)
-        })
-
-    # Ensure last message is from user to maintain alternation
-    if merged_messages and merged_messages[-1]["role"] == "user":
-        merged_messages.append({"role": "assistant", "content": ""})
+    # 2. Rebuild conversation history from AgentCore Memory.
+    messages = load_conversation(actor_id, memory_session_id)
 
     request_body = {
         "anthropic_version": "bedrock-2023-05-31",
-        "system": "You are a helpful assistant. Use all prior messages for context and respond only to the last user message. Don't respond to the previous messages.",
-        "messages": merged_messages,
+        "system": (
+            "You are a helpful assistant. Use the supplied conversation history "
+            "to answer the latest user message."
+        ),
+        "messages": messages,
         "max_tokens": 512,
         "temperature": 0.7,
-        "top_p": 0.9
+        "top_p": 0.9,
     }
 
     try:
+        # 3. Ask the model using the conversation reconstructed from Memory.
         response = bedrock.invoke_model(
             modelId=MODEL_ID,
             body=json.dumps(request_body).encode("utf-8"),
             contentType="application/json",
-            accept="application/json"
+            accept="application/json",
         )
-        result_body = response["body"].read()
-        result = json.loads(result_body)
-        assistant_text = result.get("content", str(result))
 
-        add_event("ASSISTANT", assistant_text)
+        result = json.loads(response["body"].read())
+        assistant_text = extract_assistant_text(result)
 
-        return {"message": assistant_text}
-    except Exception as e:
-        logger.error(Fore.RED + f"Error calling Claude: {e}", exc_info=True)
-        return {"message": f"Error calling Claude: {e}"}
+        if not assistant_text:
+            assistant_text = "The model returned no text response."
+
+        # 4. Persist the assistant turn under the SAME actor + session.
+        store_message(
+            actor_id,
+            memory_session_id,
+            assistant_text,
+            "ASSISTANT",
+        )
+
+        return {
+            "message": assistant_text,
+            "actor_id": actor_id,
+            "memory_session_id": memory_session_id,
+        }
+
+    except Exception as exc:
+        logger.exception("Error calling Bedrock")
+        return {"message": f"Error calling Bedrock: {exc}"}
+
 
 if __name__ == "__main__":
     app.run()

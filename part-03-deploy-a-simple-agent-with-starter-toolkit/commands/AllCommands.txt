@@ -1,31 +1,70 @@
-*** PERFORM SYSTEM UPDATES ***
+*** IMPORTANT: LEGACY LAB ***
+
+This lab uses the older Python bedrock-agentcore-starter-toolkit flow.
+For new projects, AWS recommends the current @aws/agentcore CLI.
+Use this lab to understand the Runtime concept, not to memorize "launch" as the current command.
+
+
+*** PERFORM SYSTEM UPDATES (AMAZON LINUX EXAMPLE) ***
 sudo dnf update -y
 sudo dnf install -y python3.12 python3-pip
 sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
-python3 --version (should be 3.10 or higher)
+python3 --version
 
 
-*** SETUP A PYTHON VIRTUAL ENVIRONMENT ***
+*** SET UP A PYTHON VIRTUAL ENVIRONMENT ***
 python3 -m venv bedrock-env
 source bedrock-env/bin/activate
 
 
-*** INSTALL REQUIRED PYTHON PACKAGES AND VERIFY THEIR VERSIONS ***
-pip install boto3==1.40.49 botocore==1.40.49
-pip show boto3 | grep Version
+*** INSTALL REQUIRED PYTHON PACKAGES ***
+pip install --upgrade pip
+pip install boto3 botocore
+pip install bedrock-agentcore bedrock-agentcore-starter-toolkit
 
 
-*** INSTALL AWS CLI AND CONFIGURE IT ***
-pip install awscli --upgrade
-aws configure (using the MyAgentCoreUser user OR your user)
+*** VERIFY AWS IDENTITY BEFORE CREATING RESOURCES ***
+aws sts get-caller-identity
+
+# If the AWS CLI is not configured yet:
+# aws configure
 
 
-*** INSTALL BEDROCK AGENTCORE STARTER TOOLKIT ***
-curl -LsSf https://astral.sh/uv/install.sh | sh 
-uv pip install bedrock-agentcore-starter-toolkit
-                    OR
-pip install bedrock-agentcore-starter-toolkit
-
-
-*** VERIFY THAT AGENTCORE IS INSTALLED ***
+*** VERIFY THE LEGACY STARTER TOOLKIT CLI ***
 agentcore --help
+
+
+*** MOVE TO THE AGENT DIRECTORY ***
+cd agent
+pip install -r requirements.txt
+
+
+*** CONFIGURE THE AGENT (LEGACY STARTER TOOLKIT) ***
+
+# Interactive configuration. Supply your sandbox AWS Region and execution role
+# when prompted.
+agentcore configure -e myagent.py
+
+
+*** DEPLOY THE AGENT (LEGACY STARTER TOOLKIT) ***
+
+# Historical command used by this tutorial generation.
+agentcore launch
+
+
+*** INVOKE THE DEPLOYED AGENT ***
+
+agentcore invoke '{"prompt": "hello AgentCore"}'
+agentcore invoke '{"prompt": "health"}'
+agentcore invoke '{"prompt": "tell me a joke"}'
+
+
+*** WHAT TO NOTICE ***
+
+# 1. "hello AgentCore" is echoed. No LLM is involved.
+# 2. "health" is handled by deterministic Python code.
+# 3. "tell me a joke" is also deterministic Python code.
+# 4. This lab intentionally has NO AgentCore Memory.
+#
+# If you ask "what is my name?" the application cannot truly remember a
+# previous turn. Durable memory is introduced in later labs.
