@@ -2,9 +2,11 @@
 
 A hands-on learning repository for [Amazon Bedrock AgentCore](https://docs.aws.amazon.com/bedrock-agentcore/) — AWS's managed platform for deploying, running, and governing AI agents.
 
-The repository contains **31 labs** covering Runtime, Memory, Gateway, Identity, Code Interpreter, Browser, Observability, Policy, Payments, Evaluations, and the Agent Registry.
+The repository contains **31 feature labs** covering Runtime, Memory, Gateway, Identity, Code Interpreter, Browser, Observability, Policy, Payments, Evaluations, and the Agent Registry.
 
-> **Start here if you are learning:** read [LEARNING_GUIDE.md](LEARNING_GUIDE.md) before running the labs. It explains the theory, architecture, backend request flow, and gives a concrete assignment + success criteria for every lab.
+> **New learner? Start with [course/](course/README.md).** Days 1–5 are the current, teaching-first reference: one concept per day, minimal code, visual request flows, prediction exercises, failure experiments, assignments, and explain-back tests. After Day 5, use [LEARNING_GUIDE.md](LEARNING_GUIDE.md) and the `part-*` labs to continue deeper into AgentCore capabilities.
+
+The older `part-*` folders remain valuable feature examples and historical implementation references, but they are no longer the recommended first five lessons.
 
 This is a **learning repo, not a production template**. Each lab optimizes for explaining one concept. Review IAM, secrets, networking, model choices, dependency versions, observability, failure handling, and security controls before adapting any example to production.
 
