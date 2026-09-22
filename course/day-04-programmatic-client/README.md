@@ -364,6 +364,19 @@ AgentCore does not replace your application's user/session ownership model.
 
 ---
 
+## Cleanup / cost hygiene
+
+Day 4 reuses the Day 3 Runtime rather than creating a new Runtime.
+
+After you finish the Day 4 client experiments, return to the Day 3 AgentCore project and remove its AWS resources:
+
+```bash
+agentcore remove all
+agentcore deploy
+```
+
+---
+
 ## Next day
 
 Runtime session state is useful but ephemeral.
